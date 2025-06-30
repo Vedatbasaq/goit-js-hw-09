@@ -1,22 +1,24 @@
 const form = document.querySelector('.feedback-form');
 
-const savedData = JSON.parse(localStorage.getItem('feedback-form-state'));
+// localStorage'dan veriyi obje olarak alıyoruz, yoksa boş obje
+const savedData = JSON.parse(localStorage.getItem('feedback-form-state')) || {};
+
+// Form alanlarını dolduruyoruz
+form.elements.email.value = savedData.email || '';
+form.elements.message.value = savedData.message || '';
+
+// input eventinde formData objesini güncelle ve localStorage'a kaydet
 const formData = {
-  email: savedData?.email ?? '',
-  message: savedData?.message ?? '',
+  email: savedData.email || '',
+  message: savedData.message || '',
 };
 
-// Form alanlarını doldur
-form.elements.email.value = formData.email;
-form.elements.message.value = formData.message;
-
-// Input dinleyici
 form.addEventListener('input', e => {
   formData[e.target.name] = e.target.value;
   localStorage.setItem('feedback-form-state', JSON.stringify(formData));
 });
 
-// Submit dinleyici
+// submit eventinde kontrol yap, logla, temizle
 form.addEventListener('submit', e => {
   e.preventDefault();
 
@@ -25,10 +27,13 @@ form.addEventListener('submit', e => {
     return;
   }
 
-  console.log(formData);
+  console.log({ email: formData.email, message: formData.message });
 
   localStorage.removeItem('feedback-form-state');
+
+  // formData'yı temizle
   formData.email = '';
   formData.message = '';
+
   form.reset();
 });
