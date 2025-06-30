@@ -1,39 +1,34 @@
 const form = document.querySelector('.feedback-form');
-const formData = JSON.parse(localStorage.getItem('feedback-form-state')) || {};
 
-if (localStorage.getItem('feedback-form-state')) {
-  form.elements.message.value =
-    JSON.parse(localStorage.getItem('feedback-form-state')).message ?? '';
-  form.elements.email.value =
-    JSON.parse(localStorage.getItem('feedback-form-state')).email ?? '';
-}
+const savedData = JSON.parse(localStorage.getItem('feedback-form-state'));
+const formData = {
+  email: savedData?.email ?? '',
+  message: savedData?.message ?? '',
+};
 
-form.addEventListener('input', function (e) {
-  if (e.target.name === 'message') {
-    formData.message = e.target.value;
-  } else {
-    formData.email = e.target.value;
-  }
+// Form alanlarını doldur
+form.elements.email.value = formData.email;
+form.elements.message.value = formData.message;
 
+// Input dinleyici
+form.addEventListener('input', e => {
+  formData[e.target.name] = e.target.value;
   localStorage.setItem('feedback-form-state', JSON.stringify(formData));
 });
 
-form.addEventListener('submit', function (e) {
+// Submit dinleyici
+form.addEventListener('submit', e => {
   e.preventDefault();
-  if (
-    e.target.elements.message.value === '' ||
-    e.target.elements.email.value === ''
-  ) {
-    alert('Please fiil in all fields');
-  } else {
-    console.log({
-      message: e.target.elements.message.value,
-      email: e.target.elements.email.value,
-    });
-    localStorage.removeItem('feedback-form-state');
-    for (const key of Object.keys(formData)) {
-      formData[key] = '';
-    }
-    form.reset();
+
+  if (!formData.email || !formData.message) {
+    alert('Please fill in all fields');
+    return;
   }
+
+  console.log(formData);
+
+  localStorage.removeItem('feedback-form-state');
+  formData.email = '';
+  formData.message = '';
+  form.reset();
 });
